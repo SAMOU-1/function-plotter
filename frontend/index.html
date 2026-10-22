@@ -21,7 +21,8 @@
       status.textContent = "计算中...";
 
       try {
-        const res = await fetch("/plot", {
+        // 注意这一行，已经填好了你 Render 的网址
+        const res = await fetch("https://function-plotter.onrender.com/plot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ expr, x_min: -10, x_max: 10, steps: 200 })
