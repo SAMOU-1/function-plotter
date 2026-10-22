@@ -21,7 +21,7 @@
       status.textContent = "计算中...";
 
       try {
-        const res = await fetch("http://localhost:5000/plot", {
+        const res = await fetch("/plot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ expr, x_min: -10, x_max: 10, steps: 200 })
