@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>函数图像绘制器</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>输入函数，例如：x**2 + 2*x</h2>
+  <input id="expr" value="x**2 + 2*x" style="width:300px">
+  <button onclick="draw()">画图</button>
+  <p id="status"></p >
+  <canvas id="chart" width="600" height="400"></canvas>
+
+  <script>
+    let chart = null;
+
+    async function draw() {
+      const expr = document.getElementById("expr").value;
+      const status = document.getElementById("status");
+      status.textContent = "计算中...";
+
+      try {
+        const res = await fetch("http://localhost:5000/plot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ expr, x_min: -10, x_max: 10, steps: 200 })
+        });
+        if (!res.ok) throw new Error("后端返回错误");
+        const data = await res.json();
+
+        const points = data.points;
+        status.textContent = `共 ${points.length} 个点`;
+
+        if (chart) chart.destroy();
+        chart = new Chart(document.getElementById("chart"), {
+          type: "line",
+          data: {
+            datasets: [{
+              label: expr,
+              data: points.map(p => ({ x: p.x, y: p.y })),
+              borderColor: "blue",
+              pointRadius: 0,
+              tension: 0
+            }]
+          },
+          options: {
+            parsing: false,
+            scales: {
+              x: { type: "linear", title: { display: true, text: "x" } },
+              y: { title: { display: true, text: "y" } }
+            }
+          }
+        });
+      } catch (err) {
+        status.textContent = "出错：" + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
